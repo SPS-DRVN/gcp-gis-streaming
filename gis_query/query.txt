@@ -1,0 +1,45 @@
+###
+this query runs joins tables including
+--covid_data            to get covid data from opendata toronto 
+--fsa_with_centroids    to get fsa centroids
+--toronto_fsas          to get fsa and neighourhood name
+--gis_live_users        to get live_user_movement data
+
+
+which is saved as `drvn-sb.gis_blog_dataset.master_covid_dataset`
+and used as the view in the looker gis dashboard ###
+
+
+
+WITH
+covid as
+(SELECT *, CONCAT("user", assigned_id) as User FROM `drvn-sb.gis_blog_dataset.covid_data` order by id asc),
+fsa_table as
+(SELECT CFSAUID as fsa, geometry FROM `drvn-sb.gis_blog_dataset.fsa_with_centroids`),
+toronto_fsas as
+(SELECT fsa FROM `drvn-sb.gis_blog_dataset.toronto_fsas`),
+live_users_with_covid AS
+(SELECT * FROM covid
+LEFT JOIN
+(SELECT * FROM `drvn-sb.gis_blog_dataset.gis_live_users`)
+USING(User)),
+fsa_risk as
+(SELECT count(distinct user) as cases, fsa as fsa_stepped_in from live_users_with_covid group by fsa),
+geog_analysis AS
+(select * EXCEPT(geometry) from live_users_with_covid
+INNER JOIN
+(SELECT fsa as fsa_stepped_in, geometry as geometry from fsa_table)
+on
+ST_WITHIN(ST_GEOGPOINT(long, lat), geometry)),
+data AS
+(SELECT *
+except(fsa_stepped_in, long, lat),
+fsa_stepped_in, long, lat FROM geog_analysis
+LEFT JOIN fsa_risk
+USING(fsa_stepped_in))
+select *
+replace(IFNULL(cases, 0) as cases)
+from toronto_fsas
+full join data
+USING(fsa)
+order by cases desc
