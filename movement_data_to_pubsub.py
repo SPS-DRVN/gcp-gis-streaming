@@ -88,7 +88,7 @@ topic_name = "gis_users_for_cloud_function"
 
 publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path(project_id, topic_name)
-project_path = publisher.project_path(project_id)
+#project_path = publisher.project_path(project_id)
 
 
 i = 0

@@ -4,9 +4,11 @@ This repo contains a streaming GIS pipeline using GCP services (pubsub,cloud fun
 
 ## 1. Ingesting shapefiles into bigquery
 In order to draw map with FSA boundaries we need to ingest the geography datatype. 
-1. find the .shp file of the Toronto FSAs
+1. find the .shp file of the Toronto FSAs(this can be found in [open data toronto](https://www.toronto.ca/city-government/data-research-maps/open-data/))
 2. import geopandas and bigquery client
-3. read the .shp file using geo pandas and upload geo dataframe to bigquery using bigquery client
+3. Create credentials in your application from the service account file. Mount the service key to create a service object with a bigquery client.
+4. Create an empty table in BigQuery.
+5. read the .shp file using geo pandas and upload geo dataframe to bigquery by specifying bigquery table name using bigquery client.
 
 
 ## 2. Simulate movement data and stream it to bigquery
@@ -26,14 +28,15 @@ CLoud function also has a 10 minute timeout which is definitely worth evaluating
 ## Notebooks
 
 ### 1. movement_data_to_pubsub.ipynb
-This notebook is identical with with movement_data_to_pubsub.py. It defines migrating the user location data to google cloud pubsub. T 
+This notebook is identical with movement_data_to_pubsub.py. It defines migrating the user location data to google cloud pubsub.  
 Using python osnmx packages that lets you download geospatial data from OpenStreetMap. Defined destinations locations for major areas in greater toronto region
 
 For each user, the origin_node  and destination_node is calculated from osnmx packages, where we specify the user x and y coordinates which will return a tuple containing the distance between the coordinates and the nearest nodes. Calculated the shortest path between the origin_node and the destination_node and stored it in the route variable.
 
-By using publisher client from google cloud pub/sub defined project id and topic_name we fetched data from route variable and sent users latitude, longitude, and current time to google cloud pubsub for reference pub/sub-publishing.
+By using a publisher client from google cloud pub/sub defined project id and topic_name we fetched data from route variable and sent users latitude, longitude, and current time to google cloud pubsub for reference pub/sub-publishing.
 
 
 ### 2. movement_data_to_bigquery.ipynb
-This notebook uses the same way to simulate the geosptical data as the first one. The only different is that this notebook sends location data to bigquery directly with a sleep function.
+This notebook uses the same way to simulate the geospatial data as the first one. The only difference is that this notebook sends location data to bigquery directly with a sleep function.
+
 
