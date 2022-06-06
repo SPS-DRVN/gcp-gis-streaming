@@ -1,5 +1,5 @@
-# what is this?
-This repo contains a streaming GIS pipeline using GCP services (pubsub,cloud function and bigquery)
+# BigQuery GIS - A Mobility Data Use Case
+This repo implements the GCP geospatial data ingestion and processing part of the solution described in https://drvnintelligence.com/bigquery-gis-looker-a-mobility-data-use-case/" 
 ![diagram](./diagram.png)
 
 ## 1. Ingesting shapefiles into bigquery
